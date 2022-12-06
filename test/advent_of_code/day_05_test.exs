@@ -3,9 +3,6 @@ defmodule AdventOfCode.Day05Test do
 
   import AdventOfCode.Day05
 
-
-
-
   test "part1" do
     stacks =  ["PGRN", "CDGFLBTJ", "VSM", "PZCRSL", "QDWCVLSP", "SMDWNTC", "PWGDH", "VMCSHPLZ", "ZGWLFPR"]
 
