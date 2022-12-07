@@ -8,7 +8,7 @@ defmodule AdventOfCode.Day07Test do
     input = nil
     result = part1(input)
 
-    assert result
+    assert result == 1350966
   end
 
   @tag :skip
@@ -16,6 +16,6 @@ defmodule AdventOfCode.Day07Test do
     input = nil
     result = part2(input)
 
-    assert result
+    assert result == 6296435
   end
 end
