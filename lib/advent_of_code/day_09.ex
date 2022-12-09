@@ -3,7 +3,7 @@ defmodule AdventOfCode.Day09.RopeGame do
 
   def new(length) do
     knots =
-      0..length - 1
+      0..(length - 1)
       |> Map.new(fn index -> {index, {0, 0}} end)
 
     %__MODULE__{knots: knots, visited: MapSet.new(), last: length - 1}
