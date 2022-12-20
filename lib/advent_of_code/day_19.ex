@@ -46,27 +46,29 @@ defmodule AdventOfCode.Day19 do
     }
   end
 
-  def can_build(%{clay: 0}), do: [:clay, :ore]
-  def can_build(%{obsidian: 0}), do: [:obsidian, :ore, :clay]
-  def can_build(_), do: [:geode, :obsidian, :clay, :ore]
+  def can_build?(%{clay: 0}), do: [:clay, :ore]
+  def can_build?(%{obsidian: 0}), do: [:obsidian, :ore, :clay]
+  def can_build?(_), do: [:geode, :obsidian, :clay, :ore]
 
   def options(bots, %{ore: orep, clay: clayp, obsidian: obsp, geode: geop}) do
     prices = [orep, clayp, obsp, geop]
-    
-    required_amount = 
+
+    required_amount =
       [:obs, :clay, :ore]
       |> Enum.map(fn type ->
-          prices
-          |> Enum.map(fn p -> Map.get(p, type, 0) end)
-          |> Enum.max
-          |> Kernel.then(& {type, &1})
+        prices
+        |> Enum.map(fn p -> Map.get(p, type, 0) end)
+        |> Enum.max()
+        |> Kernel.then(&{type, &1})
       end)
 
-    can_build(bots)
-    |> Enum.reject(fn type -> type != :geode and Map.get(bots, type) >= Keyword.get(required_amount, type) end)
+    can_build?(bots)
+    |> Enum.reject(fn type ->
+      type != :geode and Map.get(bots, type) >= Keyword.get(required_amount, type)
+    end)
   end
 
-  def can_build?(bot, resources, blue_print) do
+  def has_resources_for_bot?(bot, resources, blue_print) do
     price = Map.get(blue_print, bot)
 
     price
@@ -86,7 +88,6 @@ defmodule AdventOfCode.Day19 do
   end
 
   def calc_quality_level(%{blueprint_num: bp_id} = blueprint, minutes_left) do
-
     options(bots_map(), blueprint)
     |> Enum.map(&simulate_blueprint(minutes_left, bots_map(), resource_map(), blueprint, &1))
     |> Enum.max()
@@ -98,14 +99,16 @@ defmodule AdventOfCode.Day19 do
   end
 
   def simulate_blueprint(minutes_left, bots, resources, blueprint, bot_to_build) do
-    if can_build?(bot_to_build, resources, blueprint) do
+    if has_resources_for_bot?(bot_to_build, resources, blueprint) do
       {resources, next_bots} = build_bot(bot_to_build, bots, resources, blueprint)
       resources = harvest(resources, bots)
 
-
       if minutes_left > 20 do
         options(next_bots, blueprint)
-        |> Task.async_stream(&simulate_blueprint(minutes_left - 1, next_bots, resources, blueprint, &1), timeout: :infinity)
+        |> Task.async_stream(
+          &simulate_blueprint(minutes_left - 1, next_bots, resources, blueprint, &1),
+          timeout: :infinity
+        )
         |> Enum.map(fn {:ok, geodes} -> geodes end)
         |> Enum.max()
       else
@@ -129,7 +132,7 @@ defmodule AdventOfCode.Day19 do
     |> Enum.map(&parse_blueprint/1)
     |> Task.async_stream(&calc_quality_level(&1, 24), timeout: :infinity)
     |> Enum.map(fn {:ok, {id, geodes}} -> id * geodes end)
-    |> Enum.sum
+    |> Enum.sum()
   end
 
   def part2(args) do
@@ -139,6 +142,6 @@ defmodule AdventOfCode.Day19 do
     |> Enum.map(&parse_blueprint/1)
     |> Task.async_stream(&calc_quality_level(&1, 32), timeout: :infinity)
     |> Enum.map(fn {:ok, {_id, geodes}} -> geodes end)
-    |> Enum.product
+    |> Enum.product()
   end
 end
